@@ -273,4 +273,49 @@ class LinkedIn extends AbstractProvider
             return null;
         }
     }
+    /**
+     * Attempts to Post Via API Request.
+     *
+     * @param  AccessToken $token [description]
+     * @param  string $image_url [image url]
+     * @param  string $text [text to include in share]
+     * @param  string $url [share url]
+     * @return string|null
+     * @throws IdentityProviderException
+     */
+    public function postUpdate(AccessToken $token, $image_url, $text =null, $url =null)
+    {
+        $url =  '"entityLocation": "'.$url.'",';
+        $text = '"text": "'.$text.'"';
+        $body = ['body' =>  '{
+                                "content": {
+                                    "contentEntities": [
+                                        {
+                                           '.$url.'
+                                            "thumbnails": [
+                                                {
+                                                    "resolvedUrl": "'.$image_url.'"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "title": "Test Share with Content"
+                                },
+                                "distribution": {
+                                    "linkedInDistributionTarget": {}
+                                },
+                                "owner": "urn:li:person:324_kGGaLE",
+                                "subject": "Test Share Subject",
+                                "text": {
+                                    '.$text.'
+                                }
+                            }' 
+        ];
+        d($body);
+        $shareRequest = $this->getAuthenticatedRequest(self::METHOD_POST, "https://api.linkedin.com/v2/shares", $token, $body);
+        $shareResponse = $this->getParsedResponse($shareRequest);
+        ddd($shareResponse);
+        return $shareResponse;
+    }    
+    
 }
